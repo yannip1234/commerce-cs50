@@ -1,0 +1,145 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <a href="{% url 'index' %}"><i class="fas fa-arrow-left"></i></a>
+        </div>
+    </div>
+    <div class="container content">
+
+        <div class="row align-items-center">
+            <div class="col" style="margin-right: 10px; margin-left: 10px;">
+                {% if item.img_url %}
+                    <img src="{{ item.img_url }}" class="img-fluid">
+                {% else %}
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/No_image_available_600_x_450.svg/1280px-No_image_available_600_x_450.svg.png"
+                         height="100">
+                {% endif %}
+            </div>
+            <div class="col-sm" style="margin: 10px 50px;">
+                <div class="row justify-content-center">
+                    <h2>{{ item.item_title }}</h2>
+                </div>
+                <div class="row">
+                    <p>Posted by <strong>{{ item.owner }}</strong><br><strong>Starting Price: ${{ item.price }}</strong><br>
+                        {% if bid.user_bid and is_open %}
+                            <strong>Current Bid: ${{ bid.user_bid }}</strong> by {{ bid.user_id }}
+                        {% elif not is_open %}
+                            <strong>Final Bid: ${{ bid.user_bid }}</strong> by {{ bid.user_id }}
+                        {% else %}
+                            <strong>No bids yet.</strong>
+                        {% endif %}<br>
+                        <strong>Category:</strong> {{ item.category }}</p>
+                </div>
+
+                <div class="row">
+                    <p><strong>Description:</strong> <br>{{ item.item_description }}</p>
+                </div>
+                <div class="row">
+                    {% if user.is_authenticated and is_open %}
+                        <form action="{% url "item" item.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary" name="Watchlist" style="margin-right: 10px;">
+                                Watchlist
+                            </button>
+                        </form>
+                        {% if item.owner.username == user.username %}
+                            <form action="{% url "item" item.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger" name="Close">Close Listing</button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <hr>
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Bid</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                {% if success == 1 %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        Successful bid.
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% elif success == 2 %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        Cannot bid on own listing.
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% elif success == 0 %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        Invalid bid.
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endif %}
+
+
+
+                {% if user.is_authenticated and is_open %}
+
+                    <form method="post" class="form-inline">
+                        <div class="input-group">
+                            <div class="input-group-text">Bid Price:</div>
+                            {% csrf_token %}
+                            {{ form }}
+                        </div>
+                        <input type="submit" class="btn btn-primary" value="Bid">
+
+                    </form>
+                {% elif not user.is_authenticated and is_open %}
+                    <a href="{% url 'login' %}">Login to bid</a>
+                {% elif item.winner == item.owner %}
+                    <p>Listing closed with no winner.</p>
+                {% else %}
+                    <p><strong>Winner:</strong> {{ item.winner }}</p>
+                {% endif %}
+
+
+            </div>
+        </div>
+    </div>
+
+    <br>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <h3 style="padding-top: 20px;">Comments</h3>
+            </div>
+        </div>
+        <hr/>
+
+        {% for comment in comments reversed %}
+            <div class="row">
+                <div class="col">
+                    <p><strong>{{ comment.title }}</strong> by {{ comment.name }} on {{ comment.date }}</p>
+                    <p>{{ comment.comment }}</p>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="row">
+            <form action="{% url 'comment' item.id %}" method="post">
+                {% csrf_token %}
+                {{ comment }}
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

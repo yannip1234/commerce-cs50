@@ -1,0 +1,25 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Watchlist</h2>
+
+
+    {% for item in watchlist %}
+        <div>
+            <h3>
+                <a href="{% url 'item' item.listing.id %}">{{ item.listing.item_title }}</a>
+            </h3>
+            <strong>Price: ${{ item.listing.price }}</strong>
+            <p>{{ item.listing.item_description }}</p>
+            <form action="{% url "item" item.listing.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger" name="Delete">Delete</button>
+            </form>
+
+
+        </div>
+        {% empty %}
+        <h3>Watchlist is empty.</h3>
+
+    {% endfor %}
+{% endblock %}

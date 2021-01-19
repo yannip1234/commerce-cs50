@@ -1,0 +1,25 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>My Listings</h2>
+
+
+    {% for item in listings %}
+        <div>
+            <h3>
+                <a href="{% url 'item' item.id %}">{{ item.item_title }}</a>
+            </h3>
+            <strong>Price: ${{ item.price }}</strong>
+            <p>{{ item.item_description }}</p>
+            <form action="{% url "item" item.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger" name="DeleteListing">Delete</button>
+            </form>
+
+
+        </div>
+        {% empty %}
+        <p>No items yet! <a href="{% url "create" %}">Create a listing. </a></p>
+
+    {% endfor %}
+{% endblock %}

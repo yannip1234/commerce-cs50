@@ -1,0 +1,39 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <div>
+        <h2>
+            {{ message }}
+        </h2>
+    </div>
+
+    <h2>Active Listings</h2>
+    <div class="container listings" style="display: flex; justify-content: center">
+        <div class="row">
+            {% for item in listings %}
+                <div class="col-sm item">
+                    {% if item.img_url %}
+                        <img src="{{ item.img_url }}" height="100" class="thumbnail">
+                        {% else %}
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/No_image_available_600_x_450.svg/1280px-No_image_available_600_x_450.svg.png" height="100">
+                    {% endif %}
+                    <h3>
+                        <a href="{% url 'item' item.id %}">{{ item.item_title }}</a>
+                    </h3>
+                    <strong>Price: ${{ item.price }}</strong>
+                    <p>{{ item.item_description }}</p>
+
+
+                </div>
+
+                {% empty %}
+
+                <div class="col-sm">
+                    <p>No items yet! <a href="{% url "create" %}">Create a listing. </a></p>
+                </div>
+
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
